@@ -1,6 +1,4 @@
-import { readable, derived } from "svelte/store";
-let _startDate;
-let _endDate;
+import { readable, writable, derived } from "svelte/store";
 let year = 2019;
 async function getData() {
   const res = await fetch("workouts.json");
@@ -11,6 +9,8 @@ async function getData() {
   }
 }
 function process(data) {
+  let _startDate;
+  let _endDate;
   const rtv = {};
   data.forEach(w => {
     let start = new Date(w.startDate);
@@ -19,9 +19,11 @@ function process(data) {
     }
     if (!_startDate || start < _startDate) {
       _startDate = new Date(w["startDate"]);
+      startDate.set(_startDate);
     }
     if (!_endDate || new Date(w["endDate"]) > _endDate) {
       _endDate = new Date(w["endDate"]);
+      endDate.set(_endDate);
     }
     let type = w.workoutActivityType.replace("HKWorkoutActivityType", "");
     if (!rtv[type]) {
@@ -44,28 +46,30 @@ export const data = readable([], async function start(set) {
   };
 });
 
-export const startDate = readable(undefined, set => {
-  let isSet = false;
-  let interval = setInterval(() => {
-    if (!isSet) {
-      set(_startDate && _startDate);
-      isSet = true;
-    }
-  }, 100);
+export const startDate = writable(new Date());
+export const endDate = writable(new Date());
+// export const startDate = readable(undefined, set => {
+//   let isSet = false;
+//   let interval = setInterval(() => {
+//     if (!isSet) {
+//       set(_startDate && _startDate);
+//       isSet = true;
+//     }
+//   }, 100);
 
-  return () => clearInterval(interval);
-});
+//   return () => clearInterval(interval);
+// });
 
-export const endDate = readable(undefined, set => {
-  let isSet = false;
-  let interval = setInterval(() => {
-    if (!isSet && _endDate) {
-      set(_endDate);
-      isSet = true;
-    }
-  }, 100);
+// export const endDate = readable(undefined, set => {
+//   let isSet = false;
+//   let interval = setInterval(() => {
+//     if (!isSet && _endDate) {
+//       set(_endDate);
+//       isSet = true;
+//     }
+//   }, 100);
 
-  return () => clearInterval(interval);
-});
+//   return () => clearInterval(interval);
+// });
 
 export const processedData = derived(data, $data => process($data));
