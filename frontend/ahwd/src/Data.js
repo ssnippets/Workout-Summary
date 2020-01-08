@@ -1,5 +1,5 @@
-import { readable, writable, derived } from "svelte/store";
-let year = 2019;
+import { readable, writable, derived, get } from "svelte/store";
+export let year = writable(2019);
 async function getData() {
   const res = await fetch("workouts.json");
   if (res.ok) {
@@ -14,7 +14,7 @@ function process(data) {
   const rtv = {};
   data.forEach(w => {
     let start = new Date(w.startDate);
-    if (start.getFullYear() != year) {
+    if (start.getFullYear() != get(year)) {
       return;
     }
     if (!_startDate || start < _startDate) {
@@ -51,4 +51,4 @@ const endDateStore = writable(new Date());
 
 export const startDate = derived(startDateStore, $s => $s);
 export const endDate = derived(endDateStore, $e => $e);
-export const processedData = derived(data, $data => process($data));
+export const processedData = derived([data, year], ([$data]) => process($data));

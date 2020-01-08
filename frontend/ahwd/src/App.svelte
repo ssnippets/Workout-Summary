@@ -1,5 +1,6 @@
 <script>
   import { startDate, endDate, processedData } from "./Data.js";
+  import YearEntry from "./YearEntry.svelte";
 </script>
 
 <style>
@@ -28,6 +29,7 @@
   <h1>Jorge's Workout logs</h1>
   <h2>Start Date: {$startDate}</h2>
   <h2>End Date: {$endDate}</h2>
+  <YearEntry />
   {#await $processedData}
     <p>Loading Data</p>
   {:then data}
